@@ -1,0 +1,128 @@
+<html>
+  <head>
+    <title>Squirrel</title>
+    <script type="text/javascript">
+      var canvas, context;
+      
+      var x = 0;
+      var y = 0;
+      var orientation = 0;
+      var turningVelocity = 0;
+      var walkingVelocity = 0;
+
+      function initialize()
+      {
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        
+        setInterval(tick, 30);
+      }
+
+      function tick()
+      {
+        walk();
+        turn();
+        redraw();
+      }
+
+      function walk()
+      {
+        x += Math.cos(orientation) * walkingVelocity;
+        y += Math.sin(orientation) * walkingVelocity;
+      }
+
+      function turn()
+      { orientation += turningVelocity * 1.5; }
+
+      var SPACE = 32;
+      var LEFT = 37;
+      var UP = 38;
+      var RIGHT = 39;
+      var DOWN = 40;
+      
+      function handleKeyDown(keyCode)
+      {
+        if (keyCode == SPACE)
+          orientation += Math.PI;
+        else
+          adjustVelocity(keyCode, +1);
+      }
+
+      function handleKeyUp(keyCode)
+      { adjustVelocity(keyCode, -1); }
+
+      function adjustVelocity(keyCode, multiplier)
+      {
+        switch (keyCode)
+          {
+            case LEFT:
+              turningVelocity -= 0.1 * multiplier;
+              walkingVelocity *= Math.pow(0.5, multiplier);
+              break;
+            case RIGHT:
+              turningVelocity += 0.1 * multiplier;
+              walkingVelocity *= Math.pow(0.5, multiplier);
+              break;
+            case UP:
+              walkingVelocity += 3 * multiplier;
+              break;
+            case DOWN:
+              walkingVelocity -= 1 * multiplier;
+              break;
+          }
+        
+        redraw();
+      }
+
+      function redraw()
+      {
+        context.fillStyle = "#66ee66";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        context.save();
+        context.translate(canvas.width / 2, canvas.height / 2);
+      
+        drawPlayer();
+        
+        context.restore();
+      }
+
+      function drawPlayer()
+      {
+        context.save();
+        context.fillStyle = "#ffffff";
+        context.translate(x, y);
+        context.rotate(orientation);
+        drawTriangle();
+        context.restore();
+      }
+
+      function drawTriangle()
+      {
+        context.save();
+        context.scale(10, 5);
+        context.beginPath();
+        context.moveTo(-0.5, -1);
+        context.lineTo(+1.5, 0);
+        context.lineTo(-0.5, +1);
+        context.closePath();
+        context.fill();
+        context.restore();
+      }
+    </script>
+    <style type="text/css">
+      body
+      { background: black;
+        color: white;
+        margin-top: 4ex; }
+      canvas
+      { display: block;
+        margin: auto; }
+    </style>
+  </head>
+  <body onload="initialize()"
+        onkeydown="handleKeyDown(event.keyCode)"
+        onkeyup="handleKeyUp(event.keyCode)">
+    <canvas id="canvas" width="400" height="400"></canvas>
+  </body>
+</html>
